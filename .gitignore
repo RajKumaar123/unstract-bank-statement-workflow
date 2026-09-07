@@ -1,5 +1,11 @@
 # Collaborator-provided source documents (private, local only)
-data/raw/
+data/raw/*
+
+# Private ground truth and extraction outputs
+data/ground_truth/*
+!data/ground_truth/.gitkeep
+data/outputs/*
+!data/outputs/.gitkeep
 
 # Python virtual environments
 .venv/
