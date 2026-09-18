@@ -6,7 +6,7 @@ The eventual project will explore document intake, text extraction, structured b
 
 ## Project Status
 
-The independent ground-truth benchmark is complete and locked. Extraction experiments have not yet been executed.
+The independent ground-truth benchmark is complete and locked. The Prompt V1 baseline benchmark is complete, with sanitized aggregate results published under `results/`.
 
 ## Data
 
@@ -16,7 +16,13 @@ Source bank statements, manually verified ground truth, and raw extraction outpu
 
 ## Benchmark
 
-The benchmark contains five heterogeneous statement documents and 96 manually verified transaction rows. Independent ground truth was prepared before extraction experiments; private source and ground-truth data are excluded from Git. Evaluation results will be added only after experiments are executed.
+The benchmark contains five heterogeneous statement documents and 96 manually verified transaction rows. Independent ground truth was prepared before extraction experiments; private source and ground-truth data are excluded from Git. Evaluation results are published only as sanitized aggregate metrics.
+
+## Baseline Benchmark
+
+Prompt V1 was tested unchanged across all five manually verified documents using the reusable evaluation utility. See the [Prompt V1 definition](prompts/bank-statement-extraction-v1.md) and [sanitized baseline results](results/prompt-v1-baseline-summary.md).
+
+Raw PDFs, ground truth, raw outputs, and detailed evaluations are intentionally excluded from the public repository.
 
 ## Repository Structure
 
