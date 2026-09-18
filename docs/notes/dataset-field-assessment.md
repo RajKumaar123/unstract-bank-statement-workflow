@@ -1,6 +1,6 @@
 # Bank Statement Dataset Field Assessment
 
-The supplied test set contains heterogeneous bank-account and credit-card statement layouts. This assessment establishes the extraction contract before configuring Unstract Prompt Studio. Fields are classified as Core, Optional, Statement-Type-Specific, Derived, or Excluded. Missing fields must remain null/not-present rather than being invented.
+The supplied test set contains heterogeneous bank-account and credit-card statement layouts. This assessment established the extraction contract before configuring Unstract Prompt Studio and was validated across the five-statement benchmark. Fields are classified as Core, Optional, Statement-Type-Specific, Derived, or Excluded. Missing fields must remain null/not-present rather than being invented.
 
 ## Classification Principles
 
@@ -77,7 +77,7 @@ The extraction contract should avoid unrelated statement content unless later re
 
 ## Current Design Decision
 
-The project will use:
+The project uses:
 
 common core
 + statement-type-specific optional summary fields
@@ -85,6 +85,6 @@ common core
 
 rather than one flat schema requiring every possible bank-statement field.
 
-This decision is provisional until the canonical schema is reviewed in the next project step.
+This decision remains subject to revision only if later requirements demonstrate a need.
 
 No Prompt Studio implementation should begin until the canonical extraction schema is approved.
