@@ -32,6 +32,7 @@ Thumbs.db
 # Environment files and secrets
 .env
 .env.*
+!.env.example
 *.pem
 *.key
 
@@ -39,3 +40,8 @@ Thumbs.db
 *.tmp
 *.temp
 *.log
+
+# Private Unstract API snippets and execution notes
+docs/notes/unstract-post-snippet.txt
+docs/notes/unstract-get-status-snippet.txt
+docs/notes/unstract-execution-summary.json
