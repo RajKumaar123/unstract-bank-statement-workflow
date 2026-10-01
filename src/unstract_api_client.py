@@ -89,7 +89,7 @@ def _execution_id(body: Any) -> str | None:
     return body.get("execution_id") if isinstance(body, dict) and isinstance(body.get("execution_id"), str) else None
 
 
-def run_once(pdf_path: Path, output_path: Path, *, api_url: str, api_key: str, request_timeout: float = DEFAULT_TIMEOUT, poll_interval: float = 2.0, max_wait: float = 300.0, opener: Callable = urllib.request.urlopen) -> dict[str, Any]:
+def run_once(pdf_path: Path, output_path: Path, *, api_url: str, api_key: str, hitl_queue_name: str | None = None, request_timeout: float = DEFAULT_TIMEOUT, poll_interval: float = 2.0, max_wait: float = 300.0, opener: Callable = urllib.request.urlopen) -> dict[str, Any]:
     if output_path.exists():
         raise UnstractClientError(f"Refusing to overwrite existing output: {output_path}")
     if not pdf_path.is_file() or pdf_path.suffix.lower() != ".pdf":
@@ -98,7 +98,10 @@ def run_once(pdf_path: Path, output_path: Path, *, api_url: str, api_key: str, r
         raise UnstractClientError("API key is empty")
     started = _utc_now()
     headers = {"Authorization": f"Bearer {api_key}"}
-    body, content_type = _multipart(pdf_path, {"timeout": str(DEFAULT_TIMEOUT), "include_metadata": "False"})
+    fields = {"timeout": str(DEFAULT_TIMEOUT), "include_metadata": "False"}
+    if hitl_queue_name is not None and hitl_queue_name.strip():
+        fields["hitl_queue_name"] = hitl_queue_name.strip()
+    body, content_type = _multipart(pdf_path, fields)
     headers["Content-Type"] = content_type
     status, response = _request(api_url, method="POST", headers=headers, body=body, timeout=request_timeout, opener=opener)
     final = response
@@ -127,10 +130,11 @@ def main(argv=None) -> int:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--poll-interval", type=float, default=2.0)
     parser.add_argument("--max-wait", type=float, default=300.0)
+    parser.add_argument("--hitl-queue-name")
     args = parser.parse_args(argv)
     try:
         api_url, api_key = configuration()
-        summary = run_once(args.pdf, args.output, api_url=api_url, api_key=api_key, poll_interval=args.poll_interval, max_wait=args.max_wait)
+        summary = run_once(args.pdf, args.output, api_url=api_url, api_key=api_key, hitl_queue_name=args.hitl_queue_name, poll_interval=args.poll_interval, max_wait=args.max_wait)
         print(json.dumps({"status": "success", "http_status": summary["http_status"], "output_path": str(args.output), "polling_used": summary["polling_used"]}))
         return 0
     except (KeyError, UnstractClientError) as exc:

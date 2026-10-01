@@ -40,11 +40,27 @@ class ClientTests(unittest.TestCase):
         out=self.root/"out.json"; summary=run_once(self.pdf,out,api_url="https://example.test/deployment/api/project/",api_key="secret",opener=opener)
         self.assertEqual(summary["http_status"],200); self.assertEqual(json.loads(out.read_text())["result"]["transactions"],[]); self.assertIn("Bearer secret", calls[0].headers.values())
         with self.assertRaises(UnstractClientError): run_once(self.pdf,out,api_url="https://example.test",api_key="secret",opener=opener)
+    def test_hitl_queue_is_optional_and_trimmed(self):
+        calls=[]
+        def opener(req, timeout): calls.append(req); return Response(200, {"status": "completed"})
+        run_once(self.pdf, self.root/"default.json", api_url="https://example.test", api_key="secret", opener=opener)
+        self.assertNotIn(b"hitl_queue_name", calls[-1].data)
+        run_once(self.pdf, self.root/"hitl.json", api_url="https://example.test", api_key="secret", hitl_queue_name="  review-queue  ", opener=opener)
+        self.assertEqual(calls[-1].data.count(b"name=\"hitl_queue_name\""), 1)
+        self.assertIn(b"\r\nreview-queue\r\n", calls[-1].data)
+        run_once(self.pdf, self.root/"blank.json", api_url="https://example.test", api_key="secret", hitl_queue_name="   ", opener=opener)
+        self.assertNotIn(b"hitl_queue_name", calls[-1].data)
     def test_async_polling(self):
         responses=iter([Response(200,{"execution_id":"x"}),Response(200,{"execution_id":"x"}),Response(200,{"status":"completed","result":{}})])
         with patch("unstract_api_client.time.sleep"):
             summary=run_once(self.pdf,self.root/"out.json",api_url="https://example.test/api",api_key="secret",poll_interval=0,max_wait=1,opener=lambda req,timeout: next(responses))
         self.assertTrue(summary["polling_used"])
+    def test_cli_help_contains_hitl_option(self):
+        from unstract_api_client import main
+        with patch("unstract_api_client.configuration", side_effect=UnstractClientError("stop")):
+            with self.assertRaises(SystemExit) as ctx:
+                main(["--help"])
+        self.assertEqual(ctx.exception.code, 0)
     def test_malformed_response_and_timeout(self):
         class BadResponse(Response):
             def __init__(self): self.status=200; self.body=b"{"
